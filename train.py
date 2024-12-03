@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 import onn
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '8'
+# os.environ["CUDA_VISIBLE_DEVICES"] = '8'
 
 
 def main(args):
@@ -35,7 +35,9 @@ def main(args):
                                 num_workers=112, shuffle=False, pin_memory=True)
 
     model = onn.Net()
-    model.cuda()
+    # model.cuda()
+    device = torch.device("mps")
+    model.to(device)
 
     if args.whether_load_model:
         model.load_state_dict(torch.load(
@@ -51,7 +53,7 @@ def main(args):
                 writer.writerow(
                     ['Epoch', 'Train_Loss', "Train_Acc", 'Val_Loss', "Val_Acc", "LR"])
 
-    criterion = torch.nn.MSELoss(reduction='sum').cuda()
+    criterion = torch.nn.MSELoss(reduction='sum').to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     for epoch in range(args.start_epoch + 1, args.start_epoch + 1 + args.num_epochs):
@@ -69,9 +71,9 @@ def main(args):
         for train_iter, train_data_batch in enumerate(tk0):
 
             # (64, 1, 200, 200) float32 1. 0.
-            train_images = train_data_batch[0].cuda()
+            train_images = train_data_batch[0].to(device)
             # (1024, 10) int64 9 0
-            train_labels = train_data_batch[1].cuda()
+            train_labels = train_data_batch[1].to(device)
             train_images = F.pad(train_images, pad=(86, 86, 86, 86))
 
             train_labels = F.one_hot(train_labels, num_classes=10).float()
@@ -117,8 +119,8 @@ def main(args):
             for val_iter, val_data_batch in enumerate(tk1):
 
                 # (64, 1, 200, 200) float32 1. 0.
-                val_images = val_data_batch[0].cuda()
-                val_labels = val_data_batch[1].cuda()  # (1024, 10) int64 9 0
+                val_images = val_data_batch[0].to(device)
+                val_labels = val_data_batch[1].to(device)  # (1024, 10) int64 9 0
                 val_images = F.pad(val_images, pad=(86, 86, 86, 86))
                 val_labels = F.one_hot(val_labels, num_classes=10).float()
 
