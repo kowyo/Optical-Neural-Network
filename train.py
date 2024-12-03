@@ -30,13 +30,13 @@ def main(args):
     val_dataset = torchvision.datasets.MNIST(
         "./data", train=False, transform=transform, download=True)
     train_dataloader = DataLoader(
-        dataset=train_dataset, batch_size=args.batch_size, num_workers=112, shuffle=True, pin_memory=True)
+        dataset=train_dataset, batch_size=args.batch_size, num_workers=8, shuffle=True, pin_memory=True)
     val_dataloader = DataLoader(dataset=val_dataset, batch_size=args.batch_size,
-                                num_workers=112, shuffle=False, pin_memory=True)
+                                num_workers=8, shuffle=False, pin_memory=True)
 
     model = onn.Net()
     # model.cuda()
-    device = torch.device("mps")
+    device = torch.device("cpu")
     model.to(device)
 
     if args.whether_load_model:
