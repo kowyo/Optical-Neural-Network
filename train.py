@@ -60,7 +60,7 @@ def main(args):
         train_running_counter = 0.0
         train_running_loss = 0.0
 
-        tk0 = tqdm(train_dataloader, ncols=100, total=int(len(train_dataloader)))
+        tk0 = tqdm(train_dataloader, ncols=110, total=int(len(train_dataloader)))
         for train_iter, train_data_batch in enumerate(tk0):
 
             train_images = train_data_batch[0].cuda()           # (64, 1, 200, 200) float32 1. 0.
@@ -102,7 +102,7 @@ def main(args):
             val_running_counter = 0.0
             val_running_loss = 0.0
 
-            tk1 = tqdm(val_dataloader, ncols=100, total=int(len(val_dataloader)))
+            tk1 = tqdm(val_dataloader, ncols=110, total=int(len(val_dataloader)))
             for val_iter, val_data_batch in enumerate(tk1):
 
                 val_images = val_data_batch[0].cuda()  # (64, 1, 200, 200) float32 1. 0.

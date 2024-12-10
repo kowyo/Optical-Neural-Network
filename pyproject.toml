@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "onn"
+version = "0.1.0"
+description = "Pytorch implement of paper \"All optical machine learning using diffractive deep neural networks\"."
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9, <3.13"
+torch = "^2.5.1"
+torchvision = "^0.20.1"
+tqdm = "^4.67.1"
+numpy = "2.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
