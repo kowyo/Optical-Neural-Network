@@ -9,13 +9,15 @@ from tqdm import tqdm
 import torch
 import torchvision
 import torch.nn.functional as F
-from torchvision import transforms
+import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
+import torch.optim as optim
+from torch import nn
 
 import onn
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '8'
+# os.environ["CUDA_VISIBLE_DEVICES"] = '8'
 
 
 def main(args):
@@ -27,8 +29,8 @@ def main(args):
     transform = transforms.Compose([transforms.ToTensor()])
     train_dataset = torchvision.datasets.MNIST("./data", train=True, transform=transform, download=True)
     val_dataset = torchvision.datasets.MNIST("./data", train=False, transform=transform, download=True)
-    train_dataloader = DataLoader(dataset=train_dataset, batch_size=args.batch_size, num_workers=112, shuffle=True, pin_memory=True)
-    val_dataloader = DataLoader(dataset=val_dataset, batch_size=args.batch_size, num_workers=112, shuffle=False, pin_memory=True)
+    train_dataloader = DataLoader(dataset=train_dataset, batch_size=args.batch_size, num_workers=12, shuffle=True, pin_memory=True)
+    val_dataloader = DataLoader(dataset=val_dataset, batch_size=args.batch_size, num_workers=12, shuffle=False, pin_memory=True)
 
     model = onn.Net()
     model.cuda()

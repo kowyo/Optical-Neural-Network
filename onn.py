@@ -37,12 +37,16 @@ class DiffractiveLayer(torch.nn.Module):
 
     def forward(self, waves):
         # waves (batch, 200, 200, 2)
-        temp = torch.fft(waves, signal_ndim=2)
+        waves = torch.view_as_complex(waves)
+        temp = torch.fft.fftn(waves)
+        temp = torch.view_as_real(temp)
         k_pace_real = self.h[..., 0] * temp[..., 0] - self.h[..., 1] * temp[..., 1]
         k_space_imag = self.h[..., 0] * temp[..., 1] + self.h[..., 1] * temp[..., 0]
         k_space = torch.stack((k_pace_real, k_space_imag), dim=-1)
+        k_space = torch.view_as_complex(k_space)
         # angular_spectrum (batch, 200, 200, 2)
-        angular_spectrum = torch.ifft(k_space, signal_ndim=2)
+        angular_spectrum = torch.fft.ifftn(k_space)
+        angular_spectrum = torch.view_as_real(angular_spectrum)
         return angular_spectrum
 
 
@@ -51,7 +55,6 @@ class Net(torch.nn.Module):
     phase only modulation
     """
     def __init__(self, num_layers=5):
-
         super(Net, self).__init__()
         # self.phase (200, 200)
         self.phase = [torch.nn.Parameter(torch.from_numpy(2 * np.pi * np.random.random(size=(200, 200)).astype('float32'))) for _ in range(num_layers)]
@@ -59,7 +62,8 @@ class Net(torch.nn.Module):
             self.register_parameter("phase" + "_" + str(i), self.phase[i])
         self.diffractive_layers = torch.nn.ModuleList([DiffractiveLayer() for _ in range(num_layers)])
         self.last_diffractive_layer = DiffractiveLayer()
-        self.sofmax = torch.nn.Softmax(dim=-1)
+        self.softmax = torch.nn.Softmax(dim=-1)
+        self.float()
 
     def forward(self, x):
         # x (batch, 200, 200, 2)
@@ -72,7 +76,7 @@ class Net(torch.nn.Module):
         x = self.last_diffractive_layer(x)
         # x_abs (batch, 200, 200)
         x_abs = torch.sqrt(x[..., 0] * x[..., 0] + x[..., 1] * x[..., 1])
-        output = self.sofmax(detector_region(x_abs))
+        output = self.softmax(detector_region(x_abs))
         return output
 
 
