@@ -11,8 +11,6 @@ import torchvision
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-import torch.optim as optim
-from torch import nn
 
 import onn
 
@@ -47,7 +45,8 @@ def main(args):
                 writer.writerow(
                     ['Epoch', 'Train_Loss', "Train_Acc", 'Val_Loss', "Val_Acc", "LR"])
 
-    criterion = torch.nn.MSELoss(reduction='sum').cuda()
+    # criterion = torch.nn.MSELoss(reduction='sum').cuda()
+    criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     for epoch in range(args.start_epoch + 1, args.start_epoch + 1 + args.num_epochs):
