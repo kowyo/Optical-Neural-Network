@@ -7,7 +7,7 @@ Forked from [haoyunliang/Optical-Neural-Network](https://github.com/haoyunliang/
 ## Get Started
 
 ```bash
-pip install poetry
-poetry install
-python3 train.py
+pip install uv
+uv sync
+uv run train.py
 ```
