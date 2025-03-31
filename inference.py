@@ -19,7 +19,7 @@ def main(args):
     
     # Load test dataset
     transform = transforms.Compose([transforms.ToTensor()])
-    test_dataset = torchvision.datasets.FashionMNIST(
+    test_dataset = torchvision.datasets.MNIST(
         "./data", train=False, transform=transform, download=True
     )
     test_dataloader = DataLoader(
