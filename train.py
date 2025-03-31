@@ -19,6 +19,15 @@ import onn
 
 
 def main(args):
+    # Device selection
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        device = torch.device('mps')
+    else:
+        device = torch.device('cpu')
+    print(f"Using device: {device}")
+
     if not os.path.exists(args.model_save_path):
         os.mkdir(args.model_save_path)
 
@@ -46,7 +55,7 @@ def main(args):
     )
 
     model = onn.Net()
-    model.cuda()
+    model.to(device)
 
     if args.whether_load_model:
         model.load_state_dict(
@@ -84,8 +93,8 @@ def main(args):
 
         tk0 = tqdm(train_dataloader, ncols=110, total=int(len(train_dataloader)))
         for train_iter, train_data_batch in enumerate(tk0):
-            train_images = train_data_batch[0].cuda()  # (64, 1, 200, 200) float32 1. 0.
-            train_labels = train_data_batch[1].cuda()  # (1024, 10) int64 9 0
+            train_images = train_data_batch[0].to(device)  # (64, 1, 200, 200) float32 1. 0.
+            train_labels = train_data_batch[1].to(device)  # (1024, 10) int64 9 0
             train_images = F.pad(train_images, pad=(86, 86, 86, 86))
 
             train_labels = F.one_hot(train_labels, num_classes=10).float()
@@ -149,8 +158,8 @@ def main(args):
 
             tk1 = tqdm(val_dataloader, ncols=110, total=int(len(val_dataloader)))
             for val_iter, val_data_batch in enumerate(tk1):
-                val_images = val_data_batch[0].cuda()  # (64, 1, 200, 200) float32 1. 0.
-                val_labels = val_data_batch[1].cuda()  # (1024, 10) int64 9 0
+                val_images = val_data_batch[0].to(device)  # (64, 1, 200, 200) float32 1. 0.
+                val_labels = val_data_batch[1].to(device)  # (1024, 10) int64 9 0
                 val_images = F.pad(val_images, pad=(86, 86, 86, 86))
                 val_labels = F.one_hot(val_labels, num_classes=10).float()
 
