@@ -14,8 +14,8 @@ import onn
 
 def main(args):
     # Setup the device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+    print(f"Using {device} device")
     
     # Load test dataset
     transform = transforms.Compose([transforms.ToTensor()])
