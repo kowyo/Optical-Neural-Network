@@ -33,7 +33,7 @@ def main(args):
     model = onn.Net()
     model_path = os.path.join(args.model_path, args.model_name)
     if os.path.exists(model_path):
-        model.load_state_dict(torch.load(model_path))
+        model.load_state_dict(torch.load(model_path, map_location=device))
         print(f'Model loaded from "{model_path}"')
     else:
         print(f"Model file not found at {model_path}")
