@@ -110,6 +110,7 @@ if __name__ == "__main__":
     # Try to load saved model parameters if available
     try:
         # Use the correct path to the model file and map tensors to CPU
+        # model_path = 'onn_model/epoch_15.pth'
         model_path = 'onn_student/onn_student_epoch_10.pth'
         # Add map_location to ensure proper device handling
         model.load_state_dict(torch.load(model_path))
@@ -120,9 +121,22 @@ if __name__ == "__main__":
     
     model.eval()
     
-    # Load a sample image
-    # For testing, try a specific image instead of random
-    image, label, class_name = load_fashion_mnist_sample(idx=np.random.randint(0, 10000))
+    # Load a sample ankle boot image from Fashion MNIST
+    # Find an ankle boot (class 9) by searching through the dataset
+    test_dataset = datasets.FashionMNIST(
+        root='./data', 
+        train=False, 
+        download=True
+    )
+    
+    # Find sample indices that correspond to ankle boots
+    ankle_boot_indices = [i for i, (_, label) in enumerate(test_dataset) if label == 9]
+    
+    # Select the second ankle boot (or a different one if you've already used index 0)
+    selected_idx = ankle_boot_indices[2]  # Use a different ankle boot
+    
+    # Load the selected ankle boot
+    image, label, class_name = load_fashion_mnist_sample(selected_idx)
     print(f"Sample image index: {label}, class name: {class_name}")
     
     # Visualize propagation through the network
