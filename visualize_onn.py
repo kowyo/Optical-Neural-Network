@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from torchvision import datasets, transforms
-from onn import Net, DiffractiveLayer, detector_region
+from onn import Net, detector_region
+
+from preprocess import preprocess_upscale_pad, preprocess_for_onn
 
 # Function to visualize detector regions
 def draw_detector_regions(detector_plane, size=200):
@@ -51,12 +53,23 @@ def visualize_propagation(model, input_image):
     # Ensure proper shape and add complex dimension (real and imaginary parts)
     if len(input_tensor.shape) == 2:
         input_tensor = input_tensor.unsqueeze(0)  # Add batch dimension
+        input_tensor = input_tensor.unsqueeze(0)  # Add channel dimension if it's missing
+    elif len(input_tensor.shape) == 3 and input_tensor.shape[0] == 1:
+        # If we have [1, H, W], add channel dimension -> [1, 1, H, W]
+        input_tensor = input_tensor.unsqueeze(0)
     
-    # Create complex input (real part = image, imaginary part = 0)
-    x = torch.stack((input_tensor, torch.zeros_like(input_tensor)), dim=-1)
+    # Use the same preprocessing as in student_and_teacher.ipynb
+    # Apply preprocess_upscale_pad for visualization
+    processed_image = preprocess_upscale_pad(input_tensor).squeeze().cpu().numpy()
+    
+    # Use preprocess_for_onn for the ONN input
+    onn_input = preprocess_for_onn(input_tensor)
     
     # Ensure input image is properly squeezed for visualization
-    result_images = [input_tensor.detach().squeeze().cpu().numpy()]
+    result_images = [processed_image]
+    
+    # Use the properly processed input for ONN
+    x = onn_input
     
     # Propagate through each layer
     for index, layer in enumerate(model.diffractive_layers):
@@ -85,9 +98,7 @@ def load_fashion_mnist_sample(idx):
     # Use the same preprocessing as in the notebook
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,)),  # Added normalization to match training
-        # Pad instead of resize to preserve the image shape
-        transforms.Lambda(lambda x: torch.nn.functional.pad(x, (86, 86, 86, 86)))
+        transforms.Normalize((0.2860,), (0.3530,))
     ])
     
     # Load Fashion MNIST dataset
@@ -111,7 +122,7 @@ if __name__ == "__main__":
     try:
         # Use the correct path to the model file and map tensors to CPU
         # model_path = 'onn_model/epoch_15.pth'
-        model_path = 'onn_student/onn_student_epoch_10.pth'
+        model_path = 'onn_student/last.pth'
         # Add map_location to ensure proper device handling
         model.load_state_dict(torch.load(model_path))
         print(f"Loaded pretrained model from {model_path}")
@@ -133,7 +144,7 @@ if __name__ == "__main__":
     ankle_boot_indices = [i for i, (_, label) in enumerate(test_dataset) if label == 9]
     
     # Select the second ankle boot (or a different one if you've already used index 0)
-    selected_idx = ankle_boot_indices[2]  # Use a different ankle boot
+    selected_idx = ankle_boot_indices[3]  # Use a different ankle boot
     
     # Load the selected ankle boot
     image, label, class_name = load_fashion_mnist_sample(selected_idx)
